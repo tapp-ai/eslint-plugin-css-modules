@@ -4,7 +4,6 @@ const recommended: TSESLint.CLIEngine.Options = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     sourceType: "module",
-    extraFileExtensions: [".css"],
   },
   plugins: ["@jespers/css-modules"],
   rules: {
