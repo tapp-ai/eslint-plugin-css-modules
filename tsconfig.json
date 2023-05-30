@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "lib": ["ESNext"],
+    "outDir": "dist",
+    "declaration": true,
+    "declarationDir": "dist",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "alwaysStrict": true,
+    "skipDefaultLibCheck": true,
+    "moduleResolution": "nodenext"
+  },
+  "exclude": ["dist", "src/fixtures"]
+}
