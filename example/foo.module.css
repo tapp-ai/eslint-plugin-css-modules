@@ -1,0 +1,19 @@
+.bar {
+  color: red;
+}
+
+.baz {
+  color: green;
+}
+
+.biz {
+  color: blue;
+}
+
+.block {
+  display: block;
+}
+
+.flex {
+  display: flex;
+}

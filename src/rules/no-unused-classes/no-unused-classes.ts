@@ -95,6 +95,23 @@ function getMarkAsUsedOption(options: unknown): Set<string> {
   return markAsUsedClassNames;
 }
 
+function getPrettyUnusedClassNames(unusedClassNames: string[]): string {
+  const base = unusedClassNames
+    .slice(0, 3)
+    .map((className) => `'${className}'`)
+    .join(", ");
+
+  if (unusedClassNames.length <= 3) {
+    return base;
+  }
+
+  return `${base}... (+${Math.max(0, unusedClassNames.length - 3)} more)`;
+}
+
+function getFixPayloadClassNames(unusedClassNames: string[]): string {
+  return unusedClassNames.map((className) => `'${className}'`).join(", ");
+}
+
 const rule = createRule({
   name: "no-unused-classes",
   defaultOptions: [
@@ -117,28 +134,28 @@ const rule = createRule({
     docs: {
       description: "Check for any unused classes in imported CSS modules",
       recommended: "error",
+      suggestion: true,
     },
     messages: {
-      unusedCssClass:
-        "Unused CSS class '{{ className }}' in '{{ cssFilePath }}'",
+      unusedCssClasses:
+        "Unused CSS classes {{ classNames }} in '{{ cssFilePath }}'",
+      markAsUsed: "Mark {{ classNames }} as used",
     },
+    hasSuggestions: true,
+    fixable: "code",
   },
   create(context) {
     type SourceFilePath = string;
-    type ClassName = string;
 
     const files: Map<
       SourceFilePath,
       {
         availableClassNames: Set<string>;
         usedClassNames: Set<string>;
-        meta?: Map<
-          ClassName,
-          {
-            importNode: TSESTree.ImportDeclaration;
-            cssFilePath: string;
-          }
-        >;
+        meta?: {
+          importNode: TSESTree.ImportDeclaration;
+          cssFilePath: string;
+        };
       }
     > = new Map();
 
@@ -166,7 +183,11 @@ const rule = createRule({
             if (classNames.size > 0) {
               const file = files.get(sourceFilePath);
 
-              const meta = file?.meta ?? new Map();
+              const meta = file?.meta ?? {
+                importNode: node,
+                cssFilePath,
+              };
+
               const availableClassNames =
                 file?.availableClassNames ?? new Set();
 
@@ -182,12 +203,6 @@ const rule = createRule({
               classNames.forEach((className) => {
                 // Add the class to available classes
                 availableClassNames.add(className);
-
-                // Save the AST node and CSS file path for ESLint error use
-                meta.set(className, {
-                  importNode: node,
-                  cssFilePath,
-                });
               });
             }
           }
@@ -238,22 +253,38 @@ const rule = createRule({
               !markAsUsedClassNames.has(className)
           );
 
-          // Iterate over the unused class names and create an error report for each of them
-          unusedClassNames.forEach((className) => {
-            const { importNode, cssFilePath } = meta?.get(className) ?? {};
+          if (unusedClassNames.length > 0) {
+            const { importNode, cssFilePath } = meta ?? {};
 
-            if (importNode) {
+            if (importNode && cssFilePath) {
+              const prettyClassNames: string =
+                getPrettyUnusedClassNames(unusedClassNames);
+              const fixPayloadClassNames: string =
+                getFixPayloadClassNames(unusedClassNames);
+
               context.report({
                 node: importNode, // The AST node
-                messageId: "unusedCssClass", // The error message ID
+                messageId: "unusedCssClasses", // The error message ID
                 // Used for string interpolation in the error message
                 data: {
-                  className, // The unused CSS class name
+                  classNames: prettyClassNames, // The unused CSS class name
                   cssFilePath, // The CSS file path
                 },
+                suggest: [
+                  {
+                    fix: (val) => {
+                      return val.insertTextBeforeRange(
+                        importNode.range,
+                        `/* eslint @jespers/css-modules/no-unused-classes: [2, { markAsUsed: [${fixPayloadClassNames}] }] */\n`
+                      );
+                    },
+                    messageId: "markAsUsed",
+                    data: { classNames: fixPayloadClassNames },
+                  },
+                ],
               });
             }
-          });
+          }
         });
       },
     };

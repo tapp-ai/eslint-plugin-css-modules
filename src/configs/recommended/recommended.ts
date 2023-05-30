@@ -1,10 +1,14 @@
-const recommended = {
+import { TSESLint } from "@typescript-eslint/utils";
+
+const recommended: TSESLint.CLIEngine.Options = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     sourceType: "module",
+    extraFileExtensions: [".css"],
   },
+  plugins: ["@jespers/css-modules"],
   rules: {
-    "css-modules/no-unused-classes": "error",
+    "@jespers/css-modules/no-unused-classes": "error",
   },
 };
 

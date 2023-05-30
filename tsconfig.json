@@ -14,5 +14,5 @@
     "skipDefaultLibCheck": true,
     "moduleResolution": "nodenext"
   },
-  "exclude": ["dist", "src/fixtures"]
+  "exclude": ["dist", "src/fixtures", "example"]
 }

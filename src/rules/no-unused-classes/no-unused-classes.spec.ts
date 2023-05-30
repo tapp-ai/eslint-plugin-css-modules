@@ -44,7 +44,7 @@ ruleTester.run("no-unused-classes", noUnusedClasses, {
   invalid: [
     {
       code: 'import styles from "./component01.module.css";',
-      errors: [{ messageId: "unusedCssClass" }],
+      errors: [{ messageId: "unusedCssClasses" }],
     },
     {
       code: `
@@ -52,11 +52,11 @@ ruleTester.run("no-unused-classes", noUnusedClasses, {
 
         const unused = styles;
       `,
-      errors: [{ messageId: "unusedCssClass" }],
+      errors: [{ messageId: "unusedCssClasses" }],
     },
     {
       code: 'import styles from "./folder/component02.module.css";',
-      errors: [{ messageId: "unusedCssClass" }],
+      errors: [{ messageId: "unusedCssClasses" }],
     },
     {
       code: `
@@ -64,7 +64,7 @@ ruleTester.run("no-unused-classes", noUnusedClasses, {
 
         const unused = styles;
       `,
-      errors: [{ messageId: "unusedCssClass" }],
+      errors: [{ messageId: "unusedCssClasses" }],
     },
     {
       code: `
@@ -72,7 +72,7 @@ ruleTester.run("no-unused-classes", noUnusedClasses, {
 
         const used = styles['main'];
       `,
-      errors: [{ messageId: "unusedCssClass" }],
+      errors: [{ messageId: "unusedCssClasses" }],
     },
   ],
 });

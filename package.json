@@ -29,6 +29,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
+    "postinstall": "yarn link && yarn link \"@jespers/eslint-plugin-css-modules\"",
     "release": "tsc && release-it"
   },
   "dependencies": {
