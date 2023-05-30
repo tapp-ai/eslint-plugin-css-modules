@@ -1,4 +1,4 @@
-<a href="https://www.npmjs.com/package/react-native-is-detox">
+<a href="https://www.npmjs.com/package/@jespers/eslint-plugin-css-modules">
   <img src="https://img.shields.io/npm/v/@jespers/eslint-plugin-css-modules">
 </a>
 
