@@ -12,6 +12,14 @@ Configure:
 
 ```json
 {
+  "extends": ["plugin:@jespers/css-modules/recommended"]
+}
+```
+
+or:
+
+```json
+{
   "plugins": ["@jespers/css-modules"],
   "rules": {
     "@jespers/css-modules/no-unused-classes": "error"
