@@ -4,6 +4,18 @@ import * as fs from "fs";
 import { ESLintUtils, TSESTree, ASTUtils } from "@typescript-eslint/utils";
 import * as cssTree from "css-tree";
 
+type MarkAsUsedOptions = {
+  markAsUsed: string[];
+};
+
+type RuleOptions = readonly [MarkAsUsedOptions];
+
+type SharedSettings = {
+  "@jespers/css-modules"?: {
+    basePath?: string;
+  };
+};
+
 const createRule = ESLintUtils.RuleCreator(() => "");
 
 /** Checks whether the provided file path ends with .module.css */
@@ -57,7 +69,11 @@ function getCssFileClassNames(cssAst: cssTree.CssNode): Set<string> {
 }
 
 function getBasePathSetting(settings: unknown): string | undefined {
-  const { basePath } = (settings as { basePath: string }) ?? {};
+  const pluginSettings = ((settings as SharedSettings) ?? {})[
+    "@jespers/css-modules"
+  ];
+
+  const { basePath } = pluginSettings ?? {};
 
   if (typeof basePath === "string" && basePath) {
     return basePath;
@@ -66,11 +82,11 @@ function getBasePathSetting(settings: unknown): string | undefined {
   return undefined;
 }
 
-function getMarkAsUsedSetting(settings: unknown): Set<string> {
+function getMarkAsUsedOption(options: unknown): Set<string> {
   const markAsUsedClassNames: Set<string> = new Set();
 
-  if (Array.isArray((settings as { markAsUsed: string[] })?.markAsUsed)) {
-    (settings as { markAsUsed: string[] }).markAsUsed?.forEach(
+  if (Array.isArray(options as RuleOptions)) {
+    (options as RuleOptions)[0]?.markAsUsed?.forEach(
       markAsUsedClassNames.add,
       markAsUsedClassNames
     );
@@ -81,7 +97,11 @@ function getMarkAsUsedSetting(settings: unknown): Set<string> {
 
 const rule = createRule({
   name: "no-unused-classes",
-  defaultOptions: [],
+  defaultOptions: [
+    {
+      markAsUsed: [],
+    },
+  ] as RuleOptions,
   meta: {
     type: "problem",
     schema: [
@@ -90,10 +110,6 @@ const rule = createRule({
         properties: {
           markAsUsed: {
             type: "array",
-            items: {
-              title: "class name",
-              type: "string",
-            },
           },
         },
       },
@@ -104,7 +120,7 @@ const rule = createRule({
     },
     messages: {
       unusedCssClass:
-        "Unused CSS class `.{{ className }}` in `{{ cssFilePath }}`",
+        "Unused CSS class '{{ className }}' in '{{ cssFilePath }}'",
     },
   },
   create(context) {
@@ -208,7 +224,7 @@ const rule = createRule({
       "Program:exit"() {
         const markAsUsedClassNames =
           files.size > 0
-            ? getMarkAsUsedSetting(context.settings)
+            ? getMarkAsUsedOption(context.options)
             : new Set<string>();
 
         // Iterate over the files map

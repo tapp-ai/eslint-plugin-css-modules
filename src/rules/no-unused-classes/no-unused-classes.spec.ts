@@ -34,9 +34,11 @@ ruleTester.run("no-unused-classes", noUnusedClasses, {
   
         const used = styles['main'];
       `,
-      settings: {
-        markAsUsed: ["not-used"],
-      },
+      options: [
+        {
+          markAsUsed: ["not-used"],
+        },
+      ],
     },
   ],
   invalid: [
